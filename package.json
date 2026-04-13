@@ -1,0 +1,21 @@
+{
+  "name": "wild-horizons",
+  "version": "1.0.0",
+  "description": "A dataset of the planets most interesting places",
+  "homepage": "https://github.com/SteffanBurnette/horizons-#readme",
+  "bugs": {
+    "url": "https://github.com/SteffanBurnette/horizons-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SteffanBurnette/horizons-.git"
+  },
+  "license": "ISC",
+  "author": "Steffan Burnette",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  }
+}
