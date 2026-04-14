@@ -1,57 +1,39 @@
 import http from 'node:http'
-import {getDataFromDB} from "./db.js"
+import { getDataFromDB } from "./db.js"
+import { sendJSONResponse } from "./sendJSONResponse.js"
+import { getDataByPathParams } from "./getDataByPathParams.js"
 
 const PORT = 3000
 
-const animal = {
-    type: "Tiger",
-    nickName: "El Tigre"
-}
-
-console.log(JSON.stringify(animal))
-
-
 const server = http.createServer( async (req, res) =>{
-
     const destinations = await getDataFromDB()
 
-    //Responding to a specified url endpoint
-    //Only executes the code if the endpoint is invoked  
-    if(req.url === "/api"){
-        console.log("You have hit the /api endpoint")
-    }
+    const urlObj = new URL(req.url, `http://${req.headers.host}`)
 
-    //Responiding the a specified endpoint & specific method equest type
-    if(req.url === "/api" && req.method === "GET"){
-        //Used to specify/label the type of data being sent
-        res.setHeader("Content-Type", "application/json")
+    const queryObj = Object.fromEntries(urlObj.searchParams)
 
-        //Setting the status code
-        res.statusCode = 200
+    console.log(queryObj)
 
-        console.log("You have hit the /api endpoint with a GET request!")
-        res.write(JSON.stringify(destinations))
+    if(urlObj.pathname === "/api" && req.method === "GET"){
+
+        let filteredDestinations = destinations
+        sendJSONResponse(res, 200, filteredDestinations)
+    } else if(req.url.startsWith("/api/content") && req.method === "GET"){
+
+        const continent = req.url.split("/").pop()
+        const filteredData = getDataByPathParams(destinations, "continent", continent)
+        sendJSONResponse(res, 200, filteredData)
+
+    } else if(req.url.startsWith("/api/country") && req.method === "GET"){
+        
+        const country = req.url.split("/").pop()
+        const filteredData = getDataByPathParams(destinations, "country", country)
+        sendJSONResponse(res, 200, filteredData)
     }else{
-        //Handling errors if the route called is not found
-        res.setHeader("Content-Type", "application/json")
-        res.statusCode = 404
-        res.end(JSON.stringify({error: "not found", message: "The requested route does not exist"}))
+        res.end()
     }
-
-    //When you use res.write you need to include res.end so that the browser
-    //knows that the resonse has eneded
-    res.write("This is written form the write method \n")
-    res.write("This is written form the write method \n")
-
-
-
-
-    res.end("Hello from the server of 3k", "utf8", () => console.log("Response ended")) //sends data over http and then ends the response
-
-
-
 })
 
 server.listen(PORT, ()=>{
-    console.log(`Server is runnin on port ${PORT}`)
+    console.log("The server is listening to port 3000")
 })
